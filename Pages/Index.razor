@@ -1,0 +1,34 @@
+﻿@page "/"
+@using GithubRepositories.Data;
+@inject GithubService githubService
+
+<div class="row">
+    <div class="col-sm-12 py-4">
+        <EditForm Model="@usernameFormModel" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <InputText id="name" bind-Value="@usernameFormModel.Username" />
+            <button type="submit">Fetch Repositories</button>
+        </EditForm>
+    </div>
+</div>
+<div class="row">
+    @if(userRepositories != null && userRepositories.Count > 0) {
+        foreach(var repo in userRepositories) {
+            <div class="col-sm-12 border mb-2">
+                <h4>@repo.Name</h4>
+                <p>@repo.Description</p>
+            </div>
+        }
+    }
+</div>
+
+@functions {
+    private UsernameFormModel usernameFormModel = new UsernameFormModel();
+    private List<GithubRepository> userRepositories = new List<GithubRepository>();
+
+    private async Task HandleValidSubmit() {
+        userRepositories = await githubService.FetchUserRepositories(usernameFormModel.Username);
+    }
+}
